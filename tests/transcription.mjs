@@ -1,0 +1,4 @@
+import assert from 'node:assert/strict';
+function normalizeWhisperChunks(chunks,duration){const raw=chunks.map(x=>{const ts=x.timestamp||[],start=Number.isFinite(ts[0])?ts[0]:null,end=Number.isFinite(ts[1])?ts[1]:null;return{text:(x.text||'').trim(),start,end}}).filter(x=>x.text&&x.start!==null);return raw.map((x,i)=>{const next=raw[i+1];const end=Math.min(duration,x.end!==null&&x.end>x.start?x.end:(next&&next.start>x.start?next.start:Math.min(duration,x.start+1.2)));return {...x,end}}).filter(x=>x.end>x.start)}
+const out=normalizeWhisperChunks([{text:'В начале',timestamp:[0,null]},{text:'в середине',timestamp:[14,null]},{text:'в конце',timestamp:[29.6,29.8]}],30);
+assert.equal(out.length,3);assert.equal(out[0].end,14);assert.equal(out[1].end,29.6);assert.equal(out[2].end,29.8);assert(out[0].start===0&&out[2].start===29.6);console.log('transcription timestamp checks passed');
